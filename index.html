@@ -644,6 +644,143 @@
     color: white;
   }
 
+  .btn-share {
+    border-color: var(--green);
+    color: var(--green-dark);
+    background: var(--green-light);
+  }
+  .btn-share:hover {
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
+  }
+
+  .btn-accent {
+    border-color: var(--accent);
+    color: white;
+    background: var(--accent);
+  }
+  .btn-accent:hover {
+    background: #B5612F;
+    border-color: #B5612F;
+    color: white;
+  }
+
+  /* Share Tip Toast */
+  .share-tip {
+    margin-top: 16px;
+    animation: fadeInUp 0.3s ease;
+  }
+  .share-tip-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--green-light);
+    border: 1px solid var(--green);
+    border-radius: var(--radius-sm);
+    padding: 12px 20px;
+    justify-content: center;
+  }
+  .share-tip-icon { font-size: 18px; }
+  .share-tip-text {
+    font-size: 14px;
+    color: var(--green-dark);
+    font-weight: 500;
+  }
+
+  /* Share Card */
+  .share-card {
+    margin-top: 24px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .share-card-inner {
+    padding: 28px 24px;
+    background: linear-gradient(135deg, #FFF9F1 0%, #FBF3E7 100%);
+  }
+  .share-card-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .share-card-brand {
+    font-family: var(--font-serif);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .share-card-title {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .share-card-score {
+    text-align: center;
+    margin: 20px 0;
+  }
+  .share-card-score-num {
+    font-family: var(--font-serif);
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .share-card-score-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .share-card-level {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+  .share-card-dims {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border);
+  }
+  .share-card-dim {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding: 4px 0;
+  }
+  .share-card-dim-name { color: var(--text); }
+  .share-card-dim-score {
+    font-weight: 600;
+    font-family: var(--font-serif);
+  }
+  .share-card-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border);
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+  .share-card-footer strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   /* Footer */
   .footer {
     text-align: center;
@@ -1277,6 +1414,21 @@
       <div class="action-bar">
         <button class="btn btn-primary" onclick="window.print()">🖨️ 打印诊断报告</button>
         <button class="btn" onclick="resetAll()">🔄 重新评估</button>
+        <button class="btn btn-share" onclick="copyResult()" id="btnCopy">📋 复制结果</button>
+        <button class="btn btn-share btn-accent" onclick="shareResult()" id="btnShare">📤 分享给朋友</button>
+      </div>
+
+      <!-- 分享提示 -->
+      <div class="share-tip" id="shareTip" style="display:none;">
+        <div class="share-tip-content">
+          <span class="share-tip-icon">✅</span>
+          <span class="share-tip-text">结果已复制，打开微信发给「一邵」即可获取专属解读</span>
+        </div>
+      </div>
+
+      <!-- 分享卡片预览 -->
+      <div class="share-card" id="shareCard" style="display:none;">
+        <div class="share-card-inner" id="shareCardInner"></div>
       </div>
     </section>
   </main>
@@ -1417,6 +1569,10 @@
     const results = document.getElementById('results');
     results.style.display = 'block';
 
+    // Store scores for sharing
+    lastDimScores = Object.assign({}, dimScores);
+    lastTotalScore = Object.values(answers).reduce((sum, a) => sum + a.score, 0);
+
     // Dimension bars
     const barsContainer = document.getElementById('resultBars');
     barsContainer.innerHTML = '';
@@ -1503,6 +1659,150 @@
     }, 300);
   }
 
+  // Store last computed scores for sharing
+  var lastDimScores = null;
+  var lastTotalScore = 0;
+
+  // Generate share text
+  function generateShareText(dimScores, total) {
+    var levelText = '';
+    if (total >= 160) levelText = '✅ 定位清晰，可以启动';
+    else if (total >= 120) levelText = '🟢 基本成型，需要补齐短板';
+    else if (total >= 80) levelText = '🟠 定位模糊，建议重新梳理';
+    else levelText = '🔴 尚未准备好，需先做基础功课';
+
+    var lines = [];
+    lines.push('【个人IP定位自检结果】');
+    lines.push('');
+    lines.push('总分：' + total + ' / 200');
+    lines.push('诊断：' + levelText);
+    lines.push('');
+    lines.push('各维度得分：');
+    dimensions.forEach(function(d) {
+      var score = dimScores[d.key];
+      var bar = '';
+      var filled = Math.round(score / 5);
+      for (var i = 0; i < 5; i++) {
+        bar += i < filled ? '●' : '○';
+      }
+      lines.push('  ' + d.icon + ' ' + d.label + '：' + bar + ' ' + score + '/25');
+    });
+
+    // Find weakest
+    var sorted = dimensions.map(function(d) { return { label: d.label, icon: d.icon, score: dimScores[d.key] }; })
+      .sort(function(a, b) { return a.score - b.score; });
+    lines.push('');
+    lines.push('🔍 最需补强：' + sorted[0].icon + sorted[0].label + '（' + sorted[0].score + '分）、' + sorted[1].icon + sorted[1].label + '（' + sorted[1].score + '分）');
+    lines.push('');
+    lines.push('——来自「一邵 | 品牌思维」个人IP定位自检清单');
+    lines.push('别闷头赶路。品牌的地基打好了，变现不过是水到渠成。');
+    return lines.join('\n');
+  }
+
+  // Render share card for screenshot
+  function renderShareCard(dimScores, total) {
+    var levelText = '';
+    var levelClass = '';
+    if (total >= 160) { levelText = '✅ 定位清晰，可以启动'; levelClass = 'background:var(--green-light);color:var(--green-dark);'; }
+    else if (total >= 120) { levelText = '🟢 基本成型，需要补齐短板'; levelClass = 'background:var(--green-light);color:var(--green-dark);'; }
+    else if (total >= 80) { levelText = '🟠 定位模糊，建议重新梳理'; levelClass = 'background:var(--yellow-light);color:var(--yellow);'; }
+    else { levelText = '🔴 尚未准备好，需先做基础功课'; levelClass = 'background:var(--red-light);color:var(--red);'; }
+
+    var scoreColor = getScoreColor(total / 200);
+
+    var dimsHTML = '';
+    dimensions.forEach(function(d) {
+      var score = dimScores[d.key];
+      var c = getScoreColor(score / 25);
+      dimsHTML += '<div class="share-card-dim">' +
+        '<span class="share-card-dim-name">' + d.icon + ' ' + d.label + '</span>' +
+        '<span class="share-card-dim-score" style="color:' + c + '">' + score + '/25</span>' +
+        '</div>';
+    });
+
+    var html = '<div class="share-card-header">' +
+      '<div class="share-card-brand">一邵 | 品牌思维</div>' +
+      '<div class="share-card-title">个人IP定位自检结果</div>' +
+      '</div>' +
+      '<div class="share-card-score">' +
+      '<div class="share-card-score-num" style="color:' + scoreColor + '">' + total + '</div>' +
+      '<div class="share-card-score-label">总分 / 200</div>' +
+      '<div class="share-card-level" style="' + levelClass + '">' + levelText + '</div>' +
+      '</div>' +
+      '<div class="share-card-dims">' + dimsHTML + '</div>' +
+      '<div class="share-card-footer">' +
+      '<strong>一邵 | 品牌思维</strong><br>' +
+      '别闷头赶路。品牌的地基打好了，变现不过是水到渠成。<br>' +
+      '扫码或搜索获取你的专属诊断 →';
+      '</div>';
+
+    document.getElementById('shareCardInner').innerHTML = html;
+    document.getElementById('shareCard').style.display = 'block';
+  }
+
+  // Copy result to clipboard
+  window.copyResult = function() {
+    if (!lastDimScores) return;
+    var text = generateShareText(lastDimScores, lastTotalScore);
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() {
+        showShareTip();
+      }).catch(function() {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  };
+
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showShareTip();
+    } catch(e) {
+      alert('复制失败，请手动长按选中下方文字复制');
+    }
+    document.body.removeChild(ta);
+  }
+
+  function showShareTip() {
+    var tip = document.getElementById('shareTip');
+    tip.style.display = 'block';
+    renderShareCard(lastDimScores, lastTotalScore);
+    setTimeout(function() {
+      tip.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+    // Auto hide after 8 seconds
+    setTimeout(function() { tip.style.display = 'none'; }, 8000);
+  }
+
+  // Share via Web Share API or fallback
+  window.shareResult = function() {
+    if (!lastDimScores) return;
+    var text = generateShareText(lastDimScores, lastTotalScore);
+
+    if (navigator.share) {
+      navigator.share({
+        title: '个人IP定位自检结果',
+        text: text,
+        url: window.location.href
+      }).catch(function() {
+        // User cancelled, fallback to copy
+        copyResult();
+      });
+    } else {
+      // Fallback: copy to clipboard
+      copyResult();
+    }
+  };
+
   // Reset
   window.resetAll = function() {
     Object.keys(answers).forEach(k => delete answers[k]);
@@ -1510,6 +1810,10 @@
     document.querySelectorAll('.question-item').forEach(q => q.classList.remove('answered'));
     document.querySelectorAll('.dimension-insight').forEach(i => i.classList.remove('visible'));
     document.getElementById('results').style.display = 'none';
+    document.getElementById('shareTip').style.display = 'none';
+    document.getElementById('shareCard').style.display = 'none';
+    lastDimScores = null;
+    lastTotalScore = 0;
     document.getElementById('scoreNum').textContent = '0';
     document.getElementById('scoreFill').style.width = '0%';
     document.getElementById('scoreLabel').textContent = '等待评估';
