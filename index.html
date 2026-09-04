@@ -1,0 +1,1542 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人IP定位自检清单</title>
+<style>
+  :root {
+    --bg: #FBF3E7;
+    --card: #FFF9F1;
+    --card-hover: #FFF5E8;
+    --text: #31251B;
+    --text-secondary: #8B7662;
+    --accent: #C96F3D;
+    --accent-light: #E8A87C;
+    --accent-bg: #FDF0E6;
+    --green: #7E9F7A;
+    --green-light: #E8F0E7;
+    --green-dark: #5C7A58;
+    --red: #C75C5C;
+    --red-light: #F5E0E0;
+    --yellow: #D4A843;
+    --yellow-light: #FBF3D9;
+    --border: #E8DDD0;
+    --border-light: #F0E8DC;
+    --shadow: 0 2px 12px rgba(49,37,27,0.06);
+    --shadow-lg: 0 4px 24px rgba(49,37,27,0.1);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --font-serif: Georgia, 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Page Container */
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-family: var(--font-serif);
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent-light);
+    padding: 4px 16px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-family: var(--font-serif);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .header-subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  /* Score Overview Bar */
+  .score-bar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 36px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 8px;
+    z-index: 100;
+  }
+
+  .score-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 3px solid var(--border);
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .score-circle .score-num {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .score-circle .score-total {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .score-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .score-label {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .score-progress-track {
+    height: 6px;
+    background: var(--border-light);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .score-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease, background 0.3s;
+    width: 0%;
+    background: var(--border);
+  }
+
+  .score-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+  }
+
+  /* Intro Section */
+  .intro {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 36px;
+  }
+
+  .intro h2 {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .intro p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  .intro p:last-child { margin-bottom: 0; }
+
+  .scoring-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .scoring-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .legend-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  /* Dimension Section */
+  .dimension {
+    margin-bottom: 32px;
+  }
+
+  .dimension-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .dimension-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    background: var(--accent-bg);
+  }
+
+  .dimension-title-group {
+    flex: 1;
+  }
+
+  .dimension-number {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .dimension-title {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .dimension-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    line-height: 1.6;
+  }
+
+  .dimension-score-badge {
+    background: var(--border-light);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 8px;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* Question Items */
+  .question-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .question-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .question-item:hover {
+    border-color: var(--accent-light);
+  }
+
+  .question-item.answered {
+    border-color: var(--green);
+    background: linear-gradient(135deg, var(--card) 0%, var(--green-light) 100%);
+  }
+
+  .question-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .question-index {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .question-item.answered .question-index {
+    background: var(--green);
+    color: white;
+  }
+
+  .question-text {
+    font-size: 14.5px;
+    line-height: 1.6;
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .question-guide {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-left: 34px;
+    margin-bottom: 14px;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  /* Rating Buttons */
+  .rating-group {
+    display: flex;
+    gap: 6px;
+    margin-left: 34px;
+  }
+
+  .rating-btn {
+    width: 40px;
+    height: 34px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .rating-btn:hover {
+    border-color: var(--accent-light);
+    color: var(--accent);
+    background: var(--accent-bg);
+  }
+
+  .rating-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .rating-btn.selected {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: white;
+  }
+
+  .rating-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 34px;
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+
+  /* Dimension Insight */
+  .dimension-insight {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: var(--accent-bg);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--accent);
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.7;
+    display: none;
+  }
+
+  .dimension-insight.visible { display: block; }
+
+  .dimension-insight strong {
+    color: var(--accent);
+  }
+
+  /* Results Section */
+  .results {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    margin-top: 48px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .results-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .results-header h2 {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .results-header p {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  /* Radar-like dimension bars */
+  .result-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .result-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .result-bar-label {
+    width: 120px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .result-bar-track {
+    flex: 1;
+    height: 20px;
+    background: var(--border-light);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .result-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    min-width: 0;
+  }
+
+  .result-bar-score {
+    width: 48px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    flex-shrink: 0;
+  }
+
+  /* Diagnosis Card */
+  .diagnosis {
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid;
+  }
+
+  .diagnosis-level {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .diagnosis-desc {
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  .diagnosis-actions {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .diagnosis-actions strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* Level-specific styles */
+  .diagnosis.excellent {
+    background: var(--green-light);
+    border-color: var(--green);
+  }
+  .diagnosis.excellent .diagnosis-level { color: var(--green-dark); }
+
+  .diagnosis.good {
+    background: #E8F4EC;
+    border-color: #8BC49F;
+  }
+  .diagnosis.good .diagnosis-level { color: #4A8C5F; }
+
+  .diagnosis.warning {
+    background: var(--yellow-light);
+    border-color: var(--yellow);
+  }
+  .diagnosis.warning .diagnosis-level { color: #9A7B20; }
+
+  .diagnosis.danger {
+    background: var(--red-light);
+    border-color: var(--red);
+  }
+  .diagnosis.danger .diagnosis-level { color: var(--red); }
+
+  /* Weakest Areas */
+  .weak-areas {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .weak-areas h3 {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .weak-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .weak-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    padding: 10px 14px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+  }
+
+  .weak-rank {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Action Buttons */
+  .action-bar {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 10px 24px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: white;
+    color: var(--text);
+    transition: all 0.15s;
+  }
+
+  .btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #B5612F;
+    color: white;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 40px 0 0;
+    margin-top: 48px;
+    border-top: 1px solid var(--border-light);
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+
+  .footer-slogan {
+    font-family: var(--font-serif);
+    font-size: 15px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Print Styles */
+  @media print {
+    body { background: white; font-size: 12px; }
+    .page { padding: 20px; max-width: 100%; }
+    .score-bar { position: static; box-shadow: none; }
+    .question-item { break-inside: avoid; }
+    .dimension { break-inside: avoid; }
+    .results { break-inside: avoid; }
+    .btn, .action-bar { display: none; }
+    .rating-btn { border: 1px solid #ccc; }
+    .rating-btn.selected { background: #333; color: white; border-color: #333; }
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .page { padding: 20px 16px 60px; }
+    .header { padding: 32px 0 28px; }
+    .header h1 { font-size: 24px; }
+    .score-bar { flex-direction: column; gap: 12px; padding: 18px; text-align: center; }
+    .dimension-header { flex-wrap: wrap; }
+    .dimension-score-badge { margin-top: 0; }
+    .result-bar-label { width: 80px; font-size: 12px; }
+    .scoring-legend { grid-template-columns: 1fr 1fr; }
+    .rating-btn { width: 36px; height: 30px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="header">
+    <div class="header-badge">一邵 | 品牌思维</div>
+    <h1>个人IP定位自检清单</h1>
+    <p class="header-subtitle">在启动个人IP之前，用30分钟完成一次系统性的自我审视。<br>8个维度、40个关键问题，帮你看清哪里清晰、哪里模糊。</p>
+  </header>
+
+  <!-- Sticky Score Bar -->
+  <div class="score-bar" id="scoreBar">
+    <div class="score-circle" id="scoreCircle">
+      <span class="score-num" id="scoreNum">0</span>
+      <span class="score-total">/ 200</span>
+    </div>
+    <div class="score-info">
+      <div class="score-label" id="scoreLabel">等待评估</div>
+      <div class="score-progress-track">
+        <div class="score-progress-fill" id="scoreFill"></div>
+      </div>
+      <div class="score-hint" id="scoreHint">完成所有40个问题后，查看底部诊断结果</div>
+    </div>
+  </div>
+
+  <!-- Intro -->
+  <div class="intro">
+    <h2>📋 使用说明</h2>
+    <p>这份清单不是考试，而是一次和自己对话的机会。对每个问题，根据你当前的真实状态打分——不是"你希望做到的"，而是"你现在做到的"。</p>
+    <p>每个维度5个问题，每题1-5分。完成后会自动生成诊断报告和优先行动建议。</p>
+    <div class="scoring-legend">
+      <div class="scoring-legend-item">
+        <div class="legend-dot" style="background:var(--red);">1</div>
+        <span>完全没想过</span>
+      </div>
+      <div class="scoring-legend-item">
+        <div class="legend-dot" style="background:var(--yellow);">2</div>
+        <span>比较模糊</span>
+      </div>
+      <div class="scoring-legend-item">
+        <div class="legend-dot" style="background:#B8A655;">3</div>
+        <span>有方向但不具体</span>
+      </div>
+      <div class="scoring-legend-item">
+        <div class="legend-dot" style="background:var(--green);">4</div>
+        <span>基本清晰</span>
+      </div>
+      <div class="scoring-legend-item">
+        <div class="legend-dot" style="background:var(--green-dark);">5</div>
+        <span>非常清晰且验证过</span>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <!-- Dimension 1: 我是谁 -->
+    <section class="dimension" data-dimension="identity">
+      <div class="dimension-header">
+        <div class="dimension-icon">🪞</div>
+        <div class="dimension-title-group">
+          <div class="dimension-number">维度一</div>
+          <h2 class="dimension-title">我是谁 — 核心身份</h2>
+          <p class="dimension-desc">你的差异化标签。不是"你做过什么"，而是"别人凭什么记住你"。</p>
+        </div>
+        <div class="dimension-score-badge" data-badge="identity">0 / 25</div>
+      </div>
+      <div class="question-list">
+        <div class="question-item" data-q="1">
+          <div class="question-top">
+            <div class="question-index">1</div>
+            <div class="question-text">我能用一句话说清楚"我是做什么的"吗？</div>
+          </div>
+          <div class="question-guide">测试方法：说给一个完全不了解你的人，看对方能否在10秒内理解。</div>
+          <div class="rating-group" data-group="identity"></div>
+          <div class="rating-labels"><span>没想过</span><span>非常清晰</span></div>
+        </div>
+        <div class="question-item" data-q="2">
+          <div class="question-top">
+            <div class="question-index">2</div>
+            <div class="question-text">我的经历中，有哪些是别人无法复制的？</div>
+          </div>
+          <div class="question-guide">不是列简历，而是找到"只有我有"的组合——行业×能力×视角×故事的交叉点。</div>
+          <div class="rating-group" data-group="identity"></div>
+          <div class="rating-labels"><span>没想过</span><span>非常清晰</span></div>
+        </div>
+        <div class="question-item" data-q="3">
+          <div class="question-top">
+            <div class="question-index">3</div>
+            <div class="question-text">别人提到我时，最先想到的三个关键词是什么？</div>
+          </div>
+          <div class="question-guide">如果三个朋友说出三个完全不同的词，说明你的公众形象还没成型。</div>
+          <div class="rating-group" data-group="identity"></div>
+          <div class="rating-labels"><span>没想过</span><span>非常清晰</span></div>
+        </div>
+        <div class="question-item" data-q="4">
+          <div class="question-top">
+            <div class="question-index">4</div>
+            <div class="question-text">我的定位是否在3秒内能被陌生人理解？</div>
+          </div>
+          <div class="question-guide">看你的主页昵称+简介，一个从没见过的用户能否立刻知道"关注你能得到什么"。</div>
+          <div class="rating-group" data-group="identity"></div>
+          <div class="rating-labels"><span>没想过</span><span>非常清晰</span></div>
+        </div>
+        <div class="question-item" data-q="5">
+          <div class="question-top">
+            <div class="question-index">5</div>
+            <div class="question-text">我是否有一个明确的"记忆锚点"让人记住我？</div>
+          </div>
+          <div class="question-guide">可以是一句口头禅、一个标志性动作、一种视觉风格、一个反复出现的故事原型。</div>
+          <div class="rating-group" data-group="identity"></div>
+          <div class="rating-labels"><span>没想过</span><span>非常清晰</span></div>
+        </div>
+      </div>
+      <div class="dimension-insight" data-insight="identity">
+        <strong>💡 洞察：</strong>这个维度的核心是"不可替代性"。如果你的定位去掉名字也能安到别人头上，说明还不够独特。最好的定位是"经历×视角×表达"的三重交集。
+      </div>
+    </section>
+
+    <!-- Dimension 2: 我为谁 -->
+    <section class="dimension" data-dimension="audience">
+      <div class="dimension-header">
+        <div class="dimension-icon">🎯</div>
+        <div class="dimension-title-group">
+          <div class="dimension-number">维度二</div>
+          <h2 class="dimension-title">我为谁 — 目标用户</h2>
+          <p class="dimension-desc">不是"所有人"，而是一个具体到你能叫出名字的人群。</p>
+        </div>
+        <div class="dimension-score-badge" data-badge="audience">0 / 25</div>
+      </div>
+      <div class="question-list">
+        <div class="question-item" data-q="6">
+          <div class="question-top">
+            <div class="question-index">6</div>
+            <div class="question-text">我能清晰描述我的理想用户是谁吗？</div>
+          </div>
+          <div class="question-guide">试着写出来：年龄、职业、收入、城市、家庭状况、日常焦虑、刷手机的时间段。</div>
+          <div class="rating-group" data-group="audience"></div>
+          <div class="rating-labels"><span>没想过</span><span>非常清晰</span></div>
+        </div>
+        <div class="question-item" data-q="7">
+          <div class="question-top">
+            <div class="question-index">7</div>
+            <div class="question-text">我的目标用户是否足够聚焦？</div>
+          </div>
+          <div class="question-guide">如果你说"25-50岁的女性都想做IP"——这不算聚焦。好的聚焦是"30-40岁、有大厂背景、正在考虑转型的中层管理者"。</div>
+          <div class="rating-group" data-group="audience"></div>
+          <div class="rating-labels"><span>太宽泛</span><span>非常聚焦</span></div>
+        </div>
+        <div class="question-item" data-q="8">
+          <div class="question-top">
+            <div class="question-index">8</div>
+            <div class="question-text">我自己是否就是目标用户中的一员（或有深度共情）？</div>
+          </div>
+          <div class="question-guide">最好的IP创始人自己就是用户——你经历过他们正在经历的困境，这让你的内容有真实的说服力。</div>
+          <div class="rating-group" data-group="audience"></div>
+          <div class="rating-labels"><span>不相关</span><span>深度共情</span></div>
+        </div>
+        <div class="question-item" data-q="9">
+          <div class="question-top">
+            <div class="question-index">9</div>
+            <div class="question-text">我知道我的用户在哪儿聚集、看什么内容吗？</div>
+          </div>
+          <div class="question-guide">具体到：哪个平台、关注哪些博主、在什么场景下刷到、看完后的感受是什么。</div>
+          <div class="rating-group" data-group="audience"></div>
+          <div class="rating-labels"><span>不清楚</span><span>非常了解</span></div>
+        </div>
+        <div class="question-item" data-q="10">
+          <div class="question-top">
+            <div class="question-index">10</div>
+            <div class="question-text">我的用户愿意为解决这个问题付费吗？</div>
+          </div>
+          <div class="question-guide">有付费意愿 ≠ 有付费能力。确认他们既有痛点、也有预算。最好的用户是"已经在为类似服务花钱的人"。</div>
+          <div class="rating-group" data-group="audience"></div>
+          <div class="rating-labels"><span>不确定</span><span>确认愿意</span></div>
+        </div>
+      </div>
+      <div class="dimension-insight" data-insight="audience">
+        <strong>💡 洞察：</strong>目标用户越具体，你的内容越有穿透力。"帮助所有人"等于"没有帮到任何人"。好的用户画像应该让你觉得"这就是我3年前的自己"。
+      </div>
+    </section>
+
+    <!-- Dimension 3: 我解决什么 -->
+    <section class="dimension" data-dimension="value">
+      <div class="dimension-header">
+        <div class="dimension-icon">💎</div>
+        <div class="dimension-title-group">
+          <div class="dimension-number">维度三</div>
+          <h2 class="dimension-title">我解决什么 — 价值主张</h2>
+          <p class="dimension-desc">用户不买"知识"，买"问题的解决方案"。你卖的不是课程，是确定性。</p>
+        </div>
+        <div class="dimension-score-badge" data-badge="value">0 / 25</div>
+      </div>
+      <div class="question-list">
+        <div class="question-item" data-q="11">
+          <div class="question-top">
+            <div class="question-index">11</div>
+            <div class="question-text">我能用一句话说清"我帮谁解决什么问题"吗？</div>
+          </div>
+          <div class="question-guide">公式：我帮 [具体人群] 解决 [具体问题]，让他们获得 [具体结果]。</div>
+          <div class="rating-group" data-group="value"></div>
+          <div class="rating-labels"><span>说不好</span><span>非常清晰</span></div>
+        </div>
+        <div class="question-item" data-q="12">
+          <div class="question-top">
+            <div class="question-index">12</div>
+            <div class="question-text">我的解决方案和市面上已有的有什么不同？</div>
+          </div>
+          <div class="question-guide">不是"我也教品牌"，而是"我的方法/视角/路径和他们有什么本质区别"。差异化不是更好，而是不同。</div>
+          <div class="rating-group" data-group="value"></div>
+          <div class="rating-labels"><span>没想过</span><span>非常明确</span></div>
+        </div>
+        <div class="question-item" data-q="13">
+          <div class="question-top">
+            <div class="question-index">13</div>
+            <div class="question-text">用户选我而不选别人的核心理由是什么？</div>
+          </div>
+          <div class="question-guide">这个理由不能是"我更专业"（每个人都这么说），而应该是一个具体的、可验证的、对方无法反驳的事实。</div>
+          <div class="rating-group" data-group="value"></div>
+          <div class="rating-labels"><span>说不清</span><span>非常明确</span></div>
+        </div>
+        <div class="question-item" data-q="14">
+          <div class="question-top">
+            <div class="question-index">14</div>
+            <div class="question-text">我的价值主张是否经过真实用户验证？</div>
+          </div>
+          <div class="question-guide">至少和3个目标用户聊过，确认他们认同这个问题确实存在、且你的方向是他们想要的。</div>
+          <div class="rating-group" data-group="value"></div>
+          <div class="rating-labels"><span>没验证过</span><span>已验证</span></div>
+        </div>
+        <div class="question-item" data-q="15">
+          <div class="question-top">
+            <div class="question-index">15</div>
+            <div class="question-text">我解决的问题是否足够痛、足够频繁？</div>
+          </div>
+          <div class="question-guide">"nice to have"不够——需要是"must have"。用户是"忍不了了必须解决"还是"有空再说"？</div>
+          <div class="rating-group" data-group="value"></div>
+          <div class="rating-labels"><span>不够痛</span><span>非常痛</span></div>
+        </div>
+      </div>
+      <div class="dimension-insight" data-insight="value">
+        <strong>💡 洞察：</strong>价值主张的检验标准不是你觉得多好，而是用户是否愿意为此付钱。如果一个问题"重要但不紧急"，变现会很难。找到那个"又痛又急"的问题。
+      </div>
+    </section>
+
+    <!-- Dimension 4: 我怎么变现 -->
+    <section class="dimension" data-dimension="product">
+      <div class="dimension-header">
+        <div class="dimension-icon">📦</div>
+        <div class="dimension-title-group">
+          <div class="dimension-number">维度四</div>
+          <h2 class="dimension-title">我怎么变现 — 产品体系</h2>
+          <p class="dimension-desc">不是先做产品再找用户，而是先确认有人买单，再做产品。</p>
+        </div>
+        <div class="dimension-score-badge" data-badge="product">0 / 25</div>
+      </div>
+      <div class="question-list">
+        <div class="question-item" data-q="16">
+          <div class="question-top">
+            <div class="question-index">16</div>
+            <div class="question-text">我是否有清晰的产品阶梯？</div>
+          </div>
+          <div class="question-guide">从免费内容→低价引流品→中价课程→高价服务，每一层都有明确的入口和转化逻辑。</div>
+          <div class="rating-group" data-group="product"></div>
+          <div class="rating-labels"><span>没想过</span><span>非常清晰</span></div>
+        </div>
+        <div class="question-item" data-q="17">
+          <div class="question-top">
+            <div class="question-index">17</div>
+            <div class="question-text">我的第一个产品足够轻、足够快能推出吗？</div>
+          </div>
+          <div class="question-guide">MVP原则：用最小的成本、最快的速度，验证是否有人买单。不要等产品"完美"了再上线。</div>
+          <div class="rating-group" data-group="product"></div>
+          <div class="rating-labels"><span>太重了</span><span>足够轻</span></div>
+        </div>
+        <div class="question-item" data-q="18">
+          <div class="question-top">
+            <div class="question-index">18</div>
+            <div class="question-text">我的定价是否匹配目标用户的消费力？</div>
+          </div>
+          <div class="question-guide">定价太低=吸引来只想薅羊毛的人；定价太高=把真正需要的人挡在门外。价格也是定位的一部分。</div>
+          <div class="rating-group" data-group="product"></div>
+          <div class="rating-labels"><span>不匹配</span><span>非常匹配</span></div>
+        </div>
+        <div class="question-item" data-q="19">
+          <div class="question-top">
+            <div class="question-index">19</div>
+            <div class="question-text">我的产品交付是否可持续？</div>
+          </div>
+          <div class="question-guide">如果每一份收入都需要你投入等比时间，你会很快耗尽。要想清楚：哪些可以规模化，哪些必须有你在场。</div>
+          <div class="rating-group" data-group="product"></div>
+          <div class="rating-labels"><span>不可持续</span><span>可持续</span></div>
+        </div>
+        <div class="question-item" data-q="20">
+          <div class="question-top">
+            <div class="question-index">20</div>
+            <div class="question-text">我知道第一个100元从哪里来吗？</div>
+          </div>
+          <div class="question-guide">不是"以后可能会有的收入"，而是一个具体的、可执行的路径。比如：给3个人做免费诊断→转化1个付费客户。</div>
+          <div class="rating-group" data-group="product"></div>
+          <div class="rating-labels"><span>不知道</span><span>非常清楚</span></div>
+        </div>
+      </div>
+      <div class="dimension-insight" data-insight="product">
+        <strong>💡 洞察：</strong>第一个产品的目标不是赚钱，是验证。先确认"有人愿意为此付钱"，再考虑规模化。最快验证方式是：直接问目标用户"你愿意为这个付多少钱？"
+      </div>
+    </section>
+
+    <!-- Dimension 5: 我怎么说 -->
+    <section class="dimension" data-dimension="content">
+      <div class="dimension-header">
+        <div class="dimension-icon">✍️</div>
+        <div class="dimension-title-group">
+          <div class="dimension-number">维度五</div>
+          <h2 class="dimension-title">我怎么说 — 内容策略</h2>
+          <p class="dimension-desc">内容是你的"免费产品"。每一条笔记都是一次微型交付。</p>
+        </div>
+        <div class="dimension-score-badge" data-badge="content">0 / 25</div>
+      </div>
+      <div class="question-list">
+        <div class="question-item" data-q="21">
+          <div class="question-top">
+            <div class="question-index">21</div>
+            <div class="question-text">我的内容是否围绕一个核心主题展开？</div>
+          </div>
+          <div class="question-guide">一个新用户翻看你的10条内容后，能否总结出"这个博主主要讲什么"？如果不能，说明主题太散了。</div>
+          <div class="rating-group" data-group="content"></div>
+          <div class="rating-labels"><span>很分散</span><span>很聚焦</span></div>
+        </div>
+        <div class="question-item" data-q="22">
+          <div class="question-top">
+            <div class="question-index">22</div>
+            <div class="question-text">我的表达风格是否有辨识度？</div>
+          </div>
+          <div class="question-guide">把作者名遮住，用户还能看出"这是你写的"吗？辨识度来自观点、语气、案例选择、叙事结构的独特组合。</div>
+          <div class="rating-group" data-group="content"></div>
+          <div class="rating-labels"><span>没特色</span><span>很有辨识度</span></div>
+        </div>
+        <div class="question-item" data-q="23">
+          <div class="question-top">
+            <div class="question-index">23</div>
+            <div class="question-text">我是否能持续产出？</div>
+          </div>
+          <div class="question-guide">评估你的素材库、时间、精力是否支撑每周至少2-3条的更新频率。"偶尔爆发"不如"稳定输出"。</div>
+          <div class="rating-group" data-group="content"></div>
+          <div class="rating-labels"><span>很难</span><span>完全可以</span></div>
+        </div>
+        <div class="question-item" data-q="24">
+          <div class="question-top">
+            <div class="question-index">24</div>
+            <div class="question-text">我的内容是否既有价值又有吸引力？</div>
+          </div>
+          <div class="question-guide">纯干货没人看，纯情绪没价值。最好的内容是"有价值的吸引力"——用一个好故事/好问题，包装一个有用的认知。</div>
+          <div class="rating-group" data-group="content"></div>
+          <div class="rating-labels"><span>偏科</span><span>两者兼备</span></div>
+        </div>
+        <div class="question-item" data-q="25">
+          <div class="question-top">
+            <div class="question-index">25</div>
+            <div class="question-text">我是否了解平台的流量逻辑？</div>
+          </div>
+          <div class="question-guide">标题怎么写、封面怎么设计、什么时间发、标签怎么用、评论区怎么运营——这些不是"技巧"，是基本功。</div>
+          <div class="rating-group" data-group="content"></div>
+          <div class="rating-labels"><span>不了解</span><span>很了解</span></div>
+        </div>
+      </div>
+      <div class="dimension-insight" data-insight="content">
+        <strong>💡 洞察：</strong>内容策略的核心不是"写什么"，而是"为什么用户要看你的而不是别人的"。答案通常不在信息量，而在视角、故事和人格。
+      </div>
+    </section>
+
+    <!-- Dimension 6: 我的壁垒 -->
+    <section class="dimension" data-dimension="moat">
+      <div class="dimension-header">
+        <div class="dimension-icon">🏰</div>
+        <div class="dimension-title-group">
+          <div class="dimension-number">维度六</div>
+          <h2 class="dimension-title">我的壁垒 — 竞争优势</h2>
+          <p class="dimension-desc">知识可以搬运，但经历、判断力和人格不能。你的壁垒在哪里？</p>
+        </div>
+        <div class="dimension-score-badge" data-badge="moat">0 / 25</div>
+      </div>
+      <div class="question-list">
+        <div class="question-item" data-q="26">
+          <div class="question-top">
+            <div class="question-index">26</div>
+            <div class="question-text">我的核心壁垒是什么？</div>
+          </div>
+          <div class="question-guide">壁垒可以是：独家经验、行业人脉、成功案例、独特视角、长期积累的方法论。不能只是"我更努力"。</div>
+          <div class="rating-group" data-group="moat"></div>
+          <div class="rating-labels"><span>没有壁垒</span><span>壁垒很强</span></div>
+        </div>
+        <div class="question-item" data-q="27">
+          <div class="question-top">
+            <div class="question-index">27</div>
+            <div class="question-text">如果同背景的人来做，我凭什么赢？</div>
+          </div>
+          <div class="question-guide">这是一个残酷但必要的问题。如果答案是"我也说不清"，你需要找到一个只有你有的东西。</div>
+          <div class="rating-group" data-group="moat"></div>
+          <div class="rating-labels"><span>说不清</span><span>很明确</span></div>
+        </div>
+        <div class="question-item" data-q="28">
+          <div class="question-top">
+            <div class="question-index">28</div>
+            <div class="question-text">我的IP是否有"人格化"特征？</div>
+          </div>
+          <div class="question-guide">用户关注的不只是"有用的信息"，还有"有趣的人"。你的情绪、态度、审美、甚至缺点，都是人格化的一部分。</div>
+          <div class="rating-group" data-group="moat"></div>
+          <div class="rating-labels"><span>纯工具人</span><span>人格鲜明</span></div>
+        </div>
+        <div class="question-item" data-q="29">
+          <div class="question-top">
+            <div class="question-index">29</div>
+            <div class="question-text">我是否有真实的案例/成果/故事？</div>
+          </div>
+          <div class="question-guide">案例是最好的信任状。"我帮XX做到了YY"比"我觉得应该ZZ"有说服力100倍。</div>
+          <div class="rating-group" data-group="moat"></div>
+          <div class="rating-labels"><span>没有</span><span>有很多</span></div>
+        </div>
+        <div class="question-item" data-q="30">
+          <div class="question-top">
+            <div class="question-index">30</div>
+            <div class="question-text">我的壁垒是否随时间增强而非减弱？</div>
+          </div>
+          <div class="question-guide">好的壁垒是"复利型"的——做得越久越强。如果只是"追热点"，壁垒会随热点消退而消失。</div>
+          <div class="rating-group" data-group="moat"></div>
+          <div class="rating-labels"><span>会减弱</span><span>会增强</span></div>
+        </div>
+      </div>
+      <div class="dimension-insight" data-insight="moat">
+        <strong>💡 洞察：</strong>最持久的壁垒是"你自己"——你的经历、你的判断力、你和用户之间的关系。知识会过时，但一个值得信赖的人不会。
+      </div>
+    </section>
+
+    <!-- Dimension 7: 我的资源 -->
+    <section class="dimension" data-dimension="resources">
+      <div class="dimension-header">
+        <div class="dimension-icon">⏳</div>
+        <div class="dimension-title-group">
+          <div class="dimension-number">维度七</div>
+          <h2 class="dimension-title">我的资源 — 投入盘点</h2>
+          <p class="dimension-desc">热情不够，还需要粮草。诚实面对你手里有多少牌。</p>
+        </div>
+        <div class="dimension-score-badge" data-badge="resources">0 / 25</div>
+      </div>
+      <div class="question-list">
+        <div class="question-item" data-q="31">
+          <div class="question-top">
+            <div class="question-index">31</div>
+            <div class="question-text">我每天/每周能投入多少时间在IP上？</div>
+          </div>
+          <div class="question-guide">不是"理想状态"，而是"扣除主业、家庭、通勤、睡眠后的真实可用时间"。每周10小时是最低门槛。</div>
+          <div class="rating-group" data-group="resources"></div>
+          <div class="rating-labels"><span>很少</span><span>很充足</span></div>
+        </div>
+        <div class="question-item" data-q="32">
+          <div class="question-top">
+            <div class="question-index">32</div>
+            <div class="question-text">我是否有足够的内容素材积累？</div>
+          </div>
+          <div class="question-guide">15年工作经验、项目案例、踩过的坑、学到的方法论——这些是你的"矿藏"。你挖掘了多少？</div>
+          <div class="rating-group" data-group="resources"></div>
+          <div class="rating-labels"><span>几乎没有</span><span>非常丰富</span></div>
+        </div>
+        <div class="question-item" data-q="33">
+          <div class="question-top">
+            <div class="question-index">33</div>
+            <div class="question-text">我是否有可以合作的资源/人脉？</div>
+          </div>
+          <div class="question-guide">同行交流、跨界合作、客户推荐、行业社群——这些"弱连接"往往是起量的关键。</div>
+          <div class="rating-group" data-group="resources"></div>
+          <div class="rating-labels"><span>没有</span><span>很多</span></div>
+        </div>
+        <div class="question-item" data-q="34">
+          <div class="question-top">
+            <div class="question-index">34</div>
+            <div class="question-text">我的财务状况能支撑3-6个月没有收入吗？</div>
+          </div>
+          <div class="question-guide">IP变现需要时间。如果经济压力让你焦虑到无法持续创作，反而会拖累进度。</div>
+          <div class="rating-group" data-group="resources"></div>
+          <div class="rating-labels"><span>不能</span><span>完全可以</span></div>
+        </div>
+        <div class="question-item" data-q="35">
+          <div class="question-top">
+            <div class="question-index">35</div>
+            <div class="question-text">我是否有支持者（家人/朋友/团队）？</div>
+          </div>
+          <div class="question-guide">做IP是一条孤独的路。有人理解你、支持你、在你怀疑时拉你一把——这比任何技巧都重要。</div>
+          <div class="rating-group" data-group="resources"></div>
+          <div class="rating-labels"><span>没有</span><span>有强力支持</span></div>
+        </div>
+      </div>
+      <div class="dimension-insight" data-insight="resources">
+        <strong>💡 洞察：</strong>资源不足不意味着不能开始——但意味着你需要更聪明地分配。时间少就聚焦一个平台，素材少就先从最熟悉的领域开始，钱少就先做"零成本验证"。
+      </div>
+    </section>
+
+    <!-- Dimension 8: 我的风险 -->
+    <section class="dimension" data-dimension="risk">
+      <div class="dimension-header">
+        <div class="dimension-icon">🛡️</div>
+        <div class="dimension-title-group">
+          <div class="dimension-number">维度八</div>
+          <h2 class="dimension-title">我的风险 — 预判与预案</h2>
+          <p class="dimension-desc">不是悲观，而是清醒。想清楚最坏的结果，你才能放手去做。</p>
+        </div>
+        <div class="dimension-score-badge" data-badge="risk">0 / 25</div>
+      </div>
+      <div class="question-list">
+        <div class="question-item" data-q="36">
+          <div class="question-top">
+            <div class="question-index">36</div>
+            <div class="question-text">我想过最坏的结果是什么吗？我能承受吗？</div>
+          </div>
+          <div class="question-guide">最坏不是"失败"——是浪费了6个月时间、花了一些钱、被一些人嘲笑。这些你能接受吗？</div>
+          <div class="rating-group" data-group="risk"></div>
+          <div class="rating-labels"><span>没想过</span><span>想过且能接受</span></div>
+        </div>
+        <div class="question-item" data-q="37">
+          <div class="question-top">
+            <div class="question-index">37</div>
+            <div class="question-text">我的IP是否存在政策/合规风险？</div>
+          </div>
+          <div class="question-guide">某些领域（金融、医疗、法律、教育）有严格的内容合规要求。确认你的内容不会触碰红线。</div>
+          <div class="rating-group" data-group="risk"></div>
+          <div class="rating-labels"><span>有风险</span><span>无风险</span></div>
+        </div>
+        <div class="question-item" data-q="38">
+          <div class="question-top">
+            <div class="question-index">38</div>
+            <div class="question-text">如果3个月没起色，我的备选方案是什么？</div>
+          </div>
+          <div class="question-guide">不是"放弃"，而是"调整"。是换个方向？换个平台？还是降低投入？有Plan B反而能让你更从容。</div>
+          <div class="rating-group" data-group="risk"></div>
+          <div class="rating-labels"><span>没有</span><span>有明确方案</span></div>
+        </div>
+        <div class="question-item" data-q="39">
+          <div class="question-top">
+            <div class="question-index">39</div>
+            <div class="question-text">如果失败，是否会影响我的主业/生活？</div>
+          </div>
+          <div class="question-guide">做IP最好的状态是"进可攻退可守"——成了是第二曲线，不成也不伤筋动骨。</div>
+          <div class="rating-group" data-group="risk"></div>
+          <div class="rating-labels"><span>影响很大</span><span>完全可控</span></div>
+        </div>
+        <div class="question-item" data-q="40">
+          <div class="question-top">
+            <div class="question-index">40</div>
+            <div class="question-text">我是否有持续学习和迭代的意愿与能力？</div>
+          </div>
+          <div class="question-guide">IP运营是一个快速变化的领域。平台算法在变、用户偏好在变、竞争格局在变。你准备好持续学习了吗？</div>
+          <div class="rating-group" data-group="risk"></div>
+          <div class="rating-labels"><span>不确定</span><span>完全准备好</span></div>
+        </div>
+      </div>
+      <div class="dimension-insight" data-insight="risk">
+        <strong>💡 洞察：</strong>风险的本质不是"可能失败"，而是"失败了不知道怎么办"。有预案的人反而更敢冒险——因为他们知道底线在哪。
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results" id="results" style="display:none;">
+      <div class="results-header">
+        <h2>📊 诊断报告</h2>
+        <p>基于你40个问题的回答，以下是系统性诊断</p>
+      </div>
+
+      <div class="result-bars" id="resultBars"></div>
+
+      <div id="diagnosisCard"></div>
+
+      <div class="weak-areas" id="weakAreas">
+        <h3>🔍 优先补强方向</h3>
+        <ul class="weak-list" id="weakList"></ul>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ 打印诊断报告</button>
+        <button class="btn" onclick="resetAll()">🔄 重新评估</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-slogan">"别闷头赶路。品牌的地基打好了，变现不过是水到渠成。"</p>
+    <p>个人IP定位自检清单 · 一邵 | 品牌思维</p>
+    <p style="margin-top:4px;">定位是活的——在做的过程中持续迭代。</p>
+  </footer>
+</div>
+
+<script>
+(function() {
+  // Data
+  const dimensions = [
+    { key: 'identity', label: '我是谁', icon: '🪞', max: 25 },
+    { key: 'audience', label: '我为谁', icon: '🎯', max: 25 },
+    { key: 'value', label: '价值主张', icon: '💎', max: 25 },
+    { key: 'product', label: '产品体系', icon: '📦', max: 25 },
+    { key: 'content', label: '内容策略', icon: '✍️', max: 25 },
+    { key: 'moat', label: '竞争优势', icon: '🏰', max: 25 },
+    { key: 'resources', label: '资源盘点', icon: '⏳', max: 25 },
+    { key: 'risk', label: '风险预判', icon: '🛡️', max: 25 }
+  ];
+
+  const answers = {};
+  const totalQuestions = 40;
+  const maxScore = totalQuestions * 5;
+
+  // Color mapping for scores
+  function getScoreColor(ratio) {
+    if (ratio >= 0.8) return 'var(--green-dark)';
+    if (ratio >= 0.6) return 'var(--green)';
+    if (ratio >= 0.4) return 'var(--yellow)';
+    return 'var(--red)';
+  }
+
+  // Create rating buttons
+  document.querySelectorAll('.rating-group').forEach(group => {
+    const dimKey = group.dataset.group;
+    const questionItem = group.closest('.question-item');
+    const qIndex = questionItem.dataset.q;
+    
+    for (let i = 1; i <= 5; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'rating-btn';
+      btn.textContent = i;
+      btn.setAttribute('aria-label', '评分 ' + i + ' 分');
+      btn.addEventListener('click', function() {
+        // Deselect siblings
+        group.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        answers[qIndex] = { score: i, dimension: dimKey };
+        
+        // Mark question as answered
+        questionItem.classList.add('answered');
+        
+        updateScores();
+      });
+      group.appendChild(btn);
+    }
+  });
+
+  function updateScores() {
+    // Calculate dimension scores
+    const dimScores = {};
+    dimensions.forEach(d => { dimScores[d.key] = 0; });
+    
+    Object.values(answers).forEach(a => {
+      dimScores[a.dimension] += a.score;
+    });
+
+    // Update dimension badges
+    dimensions.forEach(d => {
+      const badge = document.querySelector('[data-badge="' + d.key + '"]');
+      if (badge) {
+        badge.textContent = dimScores[d.key] + ' / 25';
+        const ratio = dimScores[d.key] / 25;
+        if (ratio >= 0.8) {
+          badge.style.background = 'var(--green-light)';
+          badge.style.color = 'var(--green-dark)';
+        } else if (ratio >= 0.6) {
+          badge.style.background = '#E8F4EC';
+          badge.style.color = '#4A8C5F';
+        } else if (ratio >= 0.4) {
+          badge.style.background = 'var(--yellow-light)';
+          badge.style.color = '#9A7B20';
+        } else {
+          badge.style.background = 'var(--red-light)';
+          badge.style.color = 'var(--red)';
+        }
+      }
+    });
+
+    // Show/hide insights
+    dimensions.forEach(d => {
+      const insight = document.querySelector('[data-insight="' + d.key + '"]');
+      if (insight) {
+        insight.classList.toggle('visible', dimScores[d.key] > 0);
+      }
+    });
+
+    // Total score
+    const total = Object.values(answers).reduce((sum, a) => sum + a.score, 0);
+    const answeredCount = Object.keys(answers).length;
+    const ratio = total / maxScore;
+
+    document.getElementById('scoreNum').textContent = total;
+    document.getElementById('scoreFill').style.width = (ratio * 100) + '%';
+    document.getElementById('scoreFill').style.background = getScoreColor(ratio);
+    
+    const circle = document.getElementById('scoreCircle');
+    circle.style.borderColor = getScoreColor(ratio);
+
+    // Update label
+    const label = document.getElementById('scoreLabel');
+    const hint = document.getElementById('scoreHint');
+    
+    if (answeredCount < totalQuestions) {
+      label.textContent = '已完成 ' + answeredCount + ' / ' + totalQuestions;
+      hint.textContent = '还有 ' + (totalQuestions - answeredCount) + ' 个问题待回答';
+    } else {
+      hint.textContent = '所有问题已回答完毕，请查看下方诊断报告 ↓';
+      if (ratio >= 0.8) {
+        label.textContent = '🟢 定位清晰，可以启动';
+      } else if (ratio >= 0.6) {
+        label.textContent = '🟡 基本成型，需要补齐短板';
+      } else if (ratio >= 0.4) {
+        label.textContent = '🟠 定位模糊，建议重新梳理';
+      } else {
+        label.textContent = '🔴 尚未准备好，需先做基础功课';
+      }
+      showResults(dimScores);
+    }
+  }
+
+  function showResults(dimScores) {
+    const results = document.getElementById('results');
+    results.style.display = 'block';
+
+    // Dimension bars
+    const barsContainer = document.getElementById('resultBars');
+    barsContainer.innerHTML = '';
+    
+    dimensions.forEach(d => {
+      const score = dimScores[d.key];
+      const pct = (score / d.max) * 100;
+      
+      const row = document.createElement('div');
+      row.className = 'result-bar-row';
+      row.innerHTML = 
+        '<div class="result-bar-label">' + d.icon + ' ' + d.label + '</div>' +
+        '<div class="result-bar-track">' +
+          '<div class="result-bar-fill" style="width:' + pct + '%;background:' + getScoreColor(score / d.max) + '"></div>' +
+        '</div>' +
+        '<div class="result-bar-score" style="color:' + getScoreColor(score / d.max) + '">' + score + '/25</div>';
+      barsContainer.appendChild(row);
+    });
+
+    // Diagnosis card
+    const total = Object.values(answers).reduce((sum, a) => sum + a.score, 0);
+    const diagCard = document.getElementById('diagnosisCard');
+    let diagHTML = '';
+    
+    if (total >= 160) {
+      diagHTML = '<div class="diagnosis excellent">' +
+        '<div class="diagnosis-level">✅ 定位清晰，可以启动</div>' +
+        '<div class="diagnosis-desc">你对自己的IP方向有系统性的思考，8个维度的得分都比较均衡。你现在缺的不是"想清楚"，而是"做出来"。</div>' +
+        '<div class="diagnosis-actions"><strong>建议下一步：</strong>立刻开始产出内容。先写10条笔记，发到平台上，用真实数据验证你的判断。完美主义是起号最大的敌人。</div>' +
+        '</div>';
+    } else if (total >= 120) {
+      diagHTML = '<div class="diagnosis good">' +
+        '<div class="diagnosis-level">🟢 基本成型，需要补齐短板</div>' +
+        '<div class="diagnosis-desc">你的大方向是对的，但在某些维度上还不够清晰。这些模糊点可能会在你执行时变成卡点。</div>' +
+        '<div class="diagnosis-actions"><strong>建议下一步：</strong>先看下方"优先补强方向"，花1-2周集中解决得分最低的2个维度。可以找目标用户聊聊，用真实反馈校准你的判断。</div>' +
+        '</div>';
+    } else if (total >= 80) {
+      diagHTML = '<div class="diagnosis warning">' +
+        '<div class="diagnosis-level">🟠 定位模糊，建议重新梳理</div>' +
+        '<div class="diagnosis-desc">你对IP方向有一些想法，但还不够系统和具体。现在贸然开始，很容易"什么都发一点、什么都做不深"。</div>' +
+        '<div class="diagnosis-actions"><strong>建议下一步：</strong>花2-4周做一次深度定位梳理。重点回答三个问题：① 我是谁（核心差异化）② 我为谁（目标用户）③ 我帮他们解决什么问题（价值主张）。可以找同行或目标用户做验证。</div>' +
+        '</div>';
+    } else {
+      diagHTML = '<div class="diagnosis danger">' +
+        '<div class="diagnosis-level">🔴 尚未准备好，需先做基础功课</div>' +
+        '<div class="diagnosis-desc">目前你对个人IP的定位还缺少系统性思考。这不是坏事——说明你在认真对待这件事。但建议先不要急着注册账号、发内容。</div>' +
+        '<div class="diagnosis-actions"><strong>建议下一步：</strong>先用2-4周做"输入"——研究10个同赛道的对标账号，找5个潜在用户深聊，参加1-2个相关社群。等你能在纸上写出"我帮[谁]解决[什么问题]，通过[什么方式]，让他们获得[什么结果]"，再开始执行。</div>' +
+        '</div>';
+    }
+    
+    diagCard.innerHTML = diagHTML;
+
+    // Weak areas
+    const sorted = dimensions.map(d => ({ ...d, score: dimScores[d.key] }))
+      .sort((a, b) => a.score - b.score);
+    
+    const weakList = document.getElementById('weakList');
+    weakList.innerHTML = '';
+    
+    const weakInsights = {
+      'identity': '尝试写下"我是___，我帮___做到___"这个句式，反复打磨直到自己觉得精准。',
+      'audience': '找3-5个你认为的理想用户聊聊，了解他们的真实痛点、信息获取习惯和付费意愿。',
+      'value': '用"我帮[谁]解决[什么问题]"句式提炼价值主张，然后找目标用户验证。',
+      'product': '设计最小可行产品（MVP），比如一次免费的1v1咨询、一个小工具包，先验证付费意愿。',
+      'content': '研究5个同赛道爆款账号的内容结构，拆解他们的标题、开头、核心论点和结尾。',
+      'moat': '列出你过去15年最有成就感的3个项目，提炼出其中的方法论和独特视角。',
+      'resources': '盘点你每天的真实可用时间，制定一个"最低可持续"的内容产出计划。',
+      'risk': '写下最坏情况和你的Plan B。你会发现，最坏的结果通常没有想象中那么可怕。'
+    };
+    
+    sorted.slice(0, 3).forEach((d, i) => {
+      const li = document.createElement('li');
+      li.className = 'weak-item';
+      li.innerHTML = 
+        '<div class="weak-rank">' + (i + 1) + '</div>' +
+        '<div><strong>' + d.icon + ' ' + d.label + '</strong>（' + d.score + '/25）<br>' +
+        '<span style="color:var(--text-secondary);font-size:12.5px;">→ ' + (weakInsights[d.key] || '') + '</span></div>';
+      weakList.appendChild(li);
+    });
+
+    // Scroll to results
+    setTimeout(function() {
+      results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  }
+
+  // Reset
+  window.resetAll = function() {
+    Object.keys(answers).forEach(k => delete answers[k]);
+    document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.question-item').forEach(q => q.classList.remove('answered'));
+    document.querySelectorAll('.dimension-insight').forEach(i => i.classList.remove('visible'));
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('scoreNum').textContent = '0';
+    document.getElementById('scoreFill').style.width = '0%';
+    document.getElementById('scoreLabel').textContent = '等待评估';
+    document.getElementById('scoreHint').textContent = '完成所有40个问题后，查看底部诊断结果';
+    document.getElementById('scoreCircle').style.borderColor = 'var(--border)';
+    dimensions.forEach(d => {
+      const badge = document.querySelector('[data-badge="' + d.key + '"]');
+      if (badge) {
+        badge.textContent = '0 / 25';
+        badge.style.background = 'var(--border-light)';
+        badge.style.color = 'var(--text-secondary)';
+      }
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Smooth scroll for internal links
+  document.querySelectorAll('a[href^="#"]').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
